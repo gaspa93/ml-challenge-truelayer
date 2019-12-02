@@ -102,3 +102,7 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# custom files and directories
+*.pdf
+the-movies-dataset/
