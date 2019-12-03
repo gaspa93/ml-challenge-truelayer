@@ -105,4 +105,5 @@ venv.bak/
 
 # custom files and directories
 *.pdf
+*.csv
 the-movies-dataset/
