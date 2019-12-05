@@ -96,7 +96,6 @@ class MovieClassifierTrainer:
 
 
     def model_selection(self):
-        # model selection
         parameters = {'n_estimators': [50, 100],
                       'class_weight': ['balanced', None],
                       'max_depth': [20, 35, 50]
@@ -107,8 +106,11 @@ class MovieClassifierTrainer:
         self.best_hyp_param = gridsearch.best_params_
 
 
-    def test_classifier(self):
-        movieclf = RandomForestClassifier(**self.best_hyp_param, random_state=15)
+    def train_classifier(self, hyp_param):
+        if hyp_param is None:
+            hyp_param = **self.best_hyp_param
+
+        movieclf = RandomForestClassifier(hyp_param, random_state=15)
         movieclf.fit(self.X_train, self.y_train)
         self.movieclf = movieclf
 
@@ -120,12 +122,17 @@ class MovieClassifierTrainer:
         dump(self.tfidf, mpath + 'tfidf.joblib')
         dump(self.svd, mpath + 'svd.joblib')
 
-def run():
+def run(model_selection=False):
     movietrainer = MovieClassifierTrainer()
-    movietrainer.extract_data('the-movies-dataset/movies_metadata.csv)
+    movietrainer.extract_data('the-movies-dataset/movies_metadata.csv')
     movietrainer.prepare_features()
-    movietrainer.model_selection()
-    movietrainer.test_classifier()
+
+    if model_selection:
+        movietrainer.model_selection()
+        movietrainer.train_classifier()
+    else:
+        precomputed_hyp_param = {'class_weight': None, 'max_depth': 20, 'n_estimators': 100}
+        movietrainer.train_classifier(precomputed_hyp_param)
     movietrainer.save_model()
 
 if __name__ == '__main__':

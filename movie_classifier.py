@@ -15,13 +15,10 @@ class StemmedTfidfVectorizer(TfidfVectorizer):
 
 class MovieClassifier:
 
-    def __init__(self, modelpath='models/'):
-        self.mpath = modelpath
-
     def load_models(self):
-        self.movieclf = load(self.mpath + 'movieclassifier.joblib')
-        self.tfidf = load(self.mpath + 'tfidf.joblib')
-        self.svd = load(self.mpath + 'svd.joblib')
+        self.movieclf = load(mpath + 'movieclassifier.joblib')
+        self.tfidf = load(mpath + 'tfidf.joblib')
+        self.svd = load(mpath + 'svd.joblib')
 
     def get_genre(self, title, description):
         input_text = [title + ' ' + description]
@@ -47,7 +44,7 @@ if __name__ == '__main__':
 
     else:
         movies_clf = MovieClassifier()
-        movies_clf.load_models()
+        movies_clf.load_models('models/')
         result = movies_clf.get_genre(args.title, args.description)
 
         print(result)
