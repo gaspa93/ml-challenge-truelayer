@@ -13,6 +13,8 @@ from sklearn.metrics import confusion_matrix
 
 from joblib import dump
 
+import argparse
+
 stop_words = nltk.corpus.stopwords.words('english')
 stemmer = nltk.stem.snowball.EnglishStemmer()
 
@@ -23,16 +25,6 @@ class StemmedTfidfVectorizer(TfidfVectorizer):
 
 
 class MovieClassifierTrainer:
-
-    def __get_main_genre(self, g_list):
-        if len(g_list) > 0:
-
-            if g_list[0]['name'] in main_genres:
-                return g_list[0]['name']
-            else:
-                return 'no main genre'
-        else:
-            return 'no genre'
 
 
     def extract_data(self, source):
@@ -58,11 +50,11 @@ class MovieClassifierTrainer:
         target = target[(~target['overview'].isnull()) & (~target['title'].isnull())]
 
         # extract only the first genre to ease the classifier training
-        target['genre'] = target['genres'].apply(lambda x: __get_main_genre(x))
+        target['genre'] = target['genres'].apply(lambda x: self.__get_main_genre(x, main_genres))
         target = target.drop('genres', axis=1)
 
         # remove movies that do not have genre or do not belong to main list
-        target = target[~target['genre'].isin(['no genre', 'no main genre
+        target = target[~target['genre'].isin(['no genre', 'no main genre'])]
         target.to_csv('data.csv', index=None)
 
         self.data = target
@@ -70,10 +62,10 @@ class MovieClassifierTrainer:
     def prepare_features(self, svd_dim=600):
 
         # preprocessing: define input text as concatenation of title and overview
-        data['text'] = data.apply(lambda x: x['title'] + ' ' + x['overview'], axis=1)
+        self.data['text'] = self.data.apply(lambda x: x['title'] + ' ' + x['overview'], axis=1)
 
         # split train and test data
-        train, test = train_test_split(data, test_size=0.1, random_state=17)
+        train, test = train_test_split(self.data, test_size=0.1, random_state=17)
 
         tfidf = StemmedTfidfVectorizer(stop_words=stop_words)
         svd = TruncatedSVD(n_components=svd_dim, random_state=11)
@@ -108,9 +100,9 @@ class MovieClassifierTrainer:
 
     def train_classifier(self, hyp_param):
         if hyp_param is None:
-            hyp_param = **self.best_hyp_param
+            hyp_param = self.best_hyp_param
 
-        movieclf = RandomForestClassifier(hyp_param, random_state=15)
+        movieclf = RandomForestClassifier(**hyp_param, random_state=15)
         movieclf.fit(self.X_train, self.y_train)
         self.movieclf = movieclf
 
@@ -122,8 +114,20 @@ class MovieClassifierTrainer:
         dump(self.tfidf, mpath + 'tfidf.joblib')
         dump(self.svd, mpath + 'svd.joblib')
 
-def run(model_selection=False):
+
+    def __get_main_genre(self, g_list, main_genres):
+        if len(g_list) > 0:
+
+            if g_list[0]['name'] in main_genres:
+                return g_list[0]['name']
+            else:
+                return 'no main genre'
+        else:
+            return 'no genre'
+
+def run(model_selection):
     movietrainer = MovieClassifierTrainer()
+
     movietrainer.extract_data('the-movies-dataset/movies_metadata.csv')
     movietrainer.prepare_features()
 
@@ -131,9 +135,16 @@ def run(model_selection=False):
         movietrainer.model_selection()
         movietrainer.train_classifier()
     else:
+        # precomputed hyper-parameters from IPYNB notebook "Train Classifier"
         precomputed_hyp_param = {'class_weight': None, 'max_depth': 20, 'n_estimators': 100}
         movietrainer.train_classifier(precomputed_hyp_param)
-    movietrainer.save_model()
+
+    movietrainer.save_model('models/')
 
 if __name__ == '__main__':
-    run()
+    parser = argparse.ArgumentParser(description='Movie Classifier Training')
+    parser.add_argument('--model-selection', dest='model_sel', action='store_true')
+    parser.set_defaults(feature=False)
+
+    args = parser.parse_args()
+    run(args.model_sel)
