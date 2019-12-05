@@ -106,5 +106,6 @@ venv.bak/
 # custom files and directories
 *.pdf
 *.csv
-the-movies-dataset/
+!the-movies-dataset/movies_metadata.csv
+!the-movies-dataset/keywords.csv
 models/
