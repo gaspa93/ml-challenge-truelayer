@@ -107,3 +107,4 @@ venv.bak/
 *.pdf
 *.csv
 the-movies-dataset/
+models/
