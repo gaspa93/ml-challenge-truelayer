@@ -16,13 +16,10 @@ class TestTrainModule(unittest.TestCase):
         self.assertEqual(self.movietrainer.train.shape[0],
                          self.movietrainer.X_train.shape[0],
                          "Train dimension should match")
-
-    def test_test_size(self):
-        self.movietrainer.split_rebalance()
-        self.movietrainer.prepare_features()
         self.assertEqual(self.movietrainer.test.shape[0],
                          self.movietrainer.X_test.shape[0],
                          "Test dimension should match")
+
 
 
 class TestMovieClassifier(unittest.TestCase):
