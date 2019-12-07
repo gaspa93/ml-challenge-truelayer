@@ -33,7 +33,7 @@ class MovieClassifier:
         genre = self.movieclf.predict(X)[0]
 
         return {'title': title,
-                'overview': description,
+                'description': description,
                 'genre': genre}
 
 
