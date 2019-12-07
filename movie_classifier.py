@@ -18,7 +18,7 @@ class StemmedTfidfVectorizer(TfidfVectorizer):
 class MovieClassifier:
 
     # reload model and objects to map text to numerical features
-    def load_models(self):
+    def load_models(self, mpath):
         self.movieclf = load(mpath + 'movieclassifier.joblib')
         self.tfidf = load(mpath + 'tfidf.joblib')
         self.svd = load(mpath + 'svd.joblib')
