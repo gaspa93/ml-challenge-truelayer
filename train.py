@@ -147,6 +147,8 @@ class MovieClassifierTrainer:
 
     # store model and feature extraction functions
     def save_model(self, mpath):
+        if not os.path.exists(mpath):
+            os.mkdir(mpath)
         dump(self.movieclf, mpath + 'movieclassifier.joblib')
         dump(self.tfidf, mpath + 'tfidf.joblib')
         dump(self.svd, mpath + 'svd.joblib')
