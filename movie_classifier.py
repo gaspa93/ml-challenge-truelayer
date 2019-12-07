@@ -4,6 +4,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import nltk
 import argparse
 
+
+# reload nltk objects to map text to features for classifier
 stop_words = nltk.corpus.stopwords.words('english')
 stemmer = nltk.stem.snowball.EnglishStemmer()
 
@@ -15,11 +17,13 @@ class StemmedTfidfVectorizer(TfidfVectorizer):
 
 class MovieClassifier:
 
+    # reload model and objects to map text to numerical features
     def load_models(self):
         self.movieclf = load(mpath + 'movieclassifier.joblib')
         self.tfidf = load(mpath + 'tfidf.joblib')
         self.svd = load(mpath + 'svd.joblib')
 
+    # predict genre given title and description and return result object
     def get_genre(self, title, description):
         input_text = [title + ' ' + description]
 
@@ -32,6 +36,7 @@ class MovieClassifier:
                 'overview': description,
                 'genre': genre}
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Movie Classifier')
     parser.add_argument('--title', type=str, help='Movie title')
@@ -40,7 +45,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if not args.title or not args.description:
-        print('Title and description are mandatory !')
+        print('Title and description are mandatory!')
 
     else:
         movies_clf = MovieClassifier()
