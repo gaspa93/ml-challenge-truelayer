@@ -39,9 +39,10 @@ class MovieClassifierTrainer:
             if m != []:
                 genres.append(m[0])
 
+        # filter low frequency genres to ease classifier training
         genre_list = pd.DataFrame(genres)['name'].value_counts()
-        genre_list = genre_list.drop(['Odyssey Media', 'Aniplex', 'Carousel Productions'])
-        main_genres = genre_list.keys().tolist()
+        genre_list = genre_list[genre_list.values > 500]
+        main_genres = set(genre_list.keys().tolist())
 
         # define dataset for classifier
         target = movies[['id', 'title', 'overview', 'genres']]
@@ -50,11 +51,12 @@ class MovieClassifierTrainer:
         target = target[(~target['overview'].isnull()) & (~target['title'].isnull())]
 
         # extract only the first genre to ease the classifier training
-        target['genre'] = target['genres'].apply(lambda x: self.__get_main_genre(x, main_genres))
-        target = target.drop('genres', axis=1)
+        target['genre_list'] = target['genres'].apply(lambda x: self.__get_genres_list(x))
+        target['genre'] = target['genre_list'].apply(lambda x: self.__get_genre_in_top(x, main_genres))
+        target = target.drop(['genres', 'genre_list'], axis=1)
 
         # remove movies that do not have genre or do not belong to main list
-        target = target[~target['genre'].isin(['no genre', 'no main genre'])]
+        target = target[~target['genre'] == 'no main genre']
         target.to_csv('data.csv', index=None)
 
         self.data = target
@@ -114,16 +116,22 @@ class MovieClassifierTrainer:
         dump(self.tfidf, mpath + 'tfidf.joblib')
         dump(self.svd, mpath + 'svd.joblib')
 
+    # util function to extract 1 top genre from movie genre list, if present
+    def __get_genre_in_top(self, g_list, main_genres):
+        top_genres = g_list.intersection(main_genres)
 
-    def __get_main_genre(self, g_list, main_genres):
-        if len(g_list) > 0:
-
-            if g_list[0]['name'] in main_genres:
-                return g_list[0]['name']
-            else:
-                return 'no main genre'
+        if len(top_genres) > 0:
+            return top_genres.pop()
         else:
-            return 'no genre'
+            return 'no main genre'
+
+    # util function to parse json genre list and map to plain text list
+    def __get_genres_list(self, g_list):
+        outlist = []
+        for g in g_list:
+            outlist.append(g['name'])
+
+        return set(outlist)
 
 def run(model_selection):
     movietrainer = MovieClassifierTrainer()
