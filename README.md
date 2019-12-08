@@ -35,7 +35,8 @@ IPython Notebooks are used to explore data, features and possible solutions: the
 
 Python scripts contain the final version of the code:
 1. ```python train.py```: load and preprocess MovieLens public dataset, train the model and store it in models/. it additionally performs hyper-parameters grid-search adding ```--model-selection``` command line parameter, otherwise a set of precomupted optimal hyper-parameters are used;
-2. ```python movie_classifier.py --title title --description description```: load model and precomputed objects generated using previous script and output the predicted genre for given title and description.
+2. ```python movie_classifier.py --title title --description description```: load model and precomputed objects generated using previous script and output the predicted genre for given title and description;
+3. ```python test.py```: run automated tests.
 
 ## Description
 
