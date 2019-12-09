@@ -103,6 +103,8 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+.DS_Store
+
 # custom files and directories
 *.pdf
 *.csv
